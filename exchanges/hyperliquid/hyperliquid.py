@@ -25,6 +25,7 @@ contexts = get_asset_contexts("")
 contexts[1][0] # asset context (volume, price, etc.)
 contexts[0]["universe"][0] # metadata (asset name, id, etc.)
 
+
 # get historical price and volume
 def get_candle_snapshot(coin, interval):
 
@@ -75,6 +76,7 @@ snapshot_df["T"] = snapshot_df["T"].dt.tz_localize(None)
 
 snapshot_df["typical_px"] = (snapshot_df["h"] + snapshot_df["l"] + snapshot_df["c"]) / 3
 snapshot_df["ntl_vlm"] = snapshot_df["typical_px"] * snapshot_df["v"]
+
 
 # plot time on x-axis, typical price and notional volume on y-axis
 fig, ax1 = plt.subplots()
