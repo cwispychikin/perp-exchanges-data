@@ -11,10 +11,11 @@ def get_candle_snapshot(coin, interval):
 
     # specify time period
     start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
-    end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 6th
+    end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
     start_time_stamp = int(start_time.timestamp() * 1000)
     end_time_stamp = int(end_time.timestamp() * 1000)
 
+    # API call
     url = "https://api.hyperliquid.xyz/info"
     payload = {
         "type": "candleSnapshot",
@@ -39,31 +40,34 @@ market_snapshot = get_candle_snapshot(coin, interval)
 snapshot_df = pd.DataFrame(market_snapshot) # convert to dataframe
 
 # normalize data in dataframe
-for i in snapshot_df:
-    # convert unix to date-time
-    snapshot_df["t"] = pd.to_datetime(snapshot_df["t"], unit="ms", utc=True) 
-    snapshot_df["T"] = pd.to_datetime(snapshot_df["T"], unit="ms", utc=True)
-    # convert strings to numeric format
-    snapshot_df["o"] = pd.to_numeric(snapshot_df["o"]) 
-    snapshot_df["c"] = pd.to_numeric(snapshot_df["c"])
-    snapshot_df["h"] = pd.to_numeric(snapshot_df["h"])
-    snapshot_df["l"] = pd.to_numeric(snapshot_df["l"])
-    snapshot_df["v"] = pd.to_numeric(snapshot_df["v"])
+for col in ["t", "T"]:
+    snapshot_df[col] = pd.to_datetime(snapshot_df[col], unit="ms", utc=True) # convert unix to date-time format
+    snapshot_df[col] = snapshot_df[col].dt.tz_localize(None) # remove UTC time zone
 
-# remove UTC time zone
-snapshot_df["t"] = snapshot_df["t"].dt.tz_localize(None) 
-snapshot_df["T"] = snapshot_df["T"].dt.tz_localize(None)
+for col in ["o", "c", "h", "l", "v"]:
+    snapshot_df[col] = pd.to_numeric(snapshot_df[col]) # convert strings to numeric format
 
-# compute typical price and notional volume
-snapshot_df["typical_px"] = (snapshot_df["h"] + snapshot_df["l"] + snapshot_df["c"]) / 3
-snapshot_df["ntl_vlm"] = snapshot_df["typical_px"] * snapshot_df["v"]
+# assign columns to variables
+start_time = snapshot_df["t"]
+end_time = snapshot_df["T"]
+open = snapshot_df["o"]
+close = snapshot_df["c"]
+high = snapshot_df["h"]
+low = snapshot_df["l"]
+volume = snapshot_df["v"]
 
-# plot time on x-axis, typical price and notional volume on y-axis
+# compute typical price and notional volume, assign to variables
+snapshot_df["typical_px"] = (high + low + close) / 3
+typical_px = snapshot_df["typical_px"]
+snapshot_df["ntl_vlm"] = snapshot_df["typical_px"] * volume
+notional_volume = snapshot_df["ntl_vlm"]
+
+# plot price and notional volume against time
 fig, ax1 = plt.subplots(figsize = (14, 7))
 ax2 = ax1.twinx()
 
-ax1.plot(snapshot_df["t"], snapshot_df["typical_px"], color="#F7931A")
-ax2.plot(snapshot_df["t"], snapshot_df["ntl_vlm"], color="#0F3933")
+ax1.plot(start_time, typical_px, color="#F7931A", label = "Typical Price")
+ax2.plot(start_time, notional_volume, color="#0F3933", label = "Notional Volume")
 ax1.set_xlabel("Time")
 ax1.set_ylabel("Price (USD)")
 ax2.set_ylabel("Notional Volume (USD)")
@@ -75,6 +79,16 @@ fig.autofmt_xdate()
 # fix right y-axis formatting
 ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{x/1e9:.1f}B")) 
 
-plt.savefig("btc_chart.png", dpi=300, bbox_inches="tight")
+# add legend
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+
+ax1.legend(
+    handles1 + handles2,
+    labels1 + labels2
+)
+
+plt.title("BTC Price & Notional Volume vs. Time")
+plt.savefig("btc_price_vlm_vs_time.png", dpi=300, bbox_inches="tight")
 
 
