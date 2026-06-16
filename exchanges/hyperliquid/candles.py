@@ -79,7 +79,7 @@ fig.autofmt_xdate()
 # fix right y-axis formatting
 ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{x/1e9:.1f}B")) 
 
-# add legend
+# create legend
 handles1, labels1 = ax1.get_legend_handles_labels()
 handles2, labels2 = ax2.get_legend_handles_labels()
 
@@ -90,5 +90,3 @@ ax1.legend(
 
 plt.title("BTC Price & Notional Volume vs. Time")
 plt.savefig("btc_price_vlm_vs_time.png", dpi=300, bbox_inches="tight")
-
-
