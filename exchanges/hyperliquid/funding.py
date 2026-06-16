@@ -60,14 +60,3 @@ fig.autofmt_xdate()
 ax.legend()
 plt.title("BTC Premium vs. Time")
 plt.savefig("btc_premium_funding_vs_time.png", dpi=300, bbox_inches="tight")
-
-
-
-
-
-
-
-
-
-
-
