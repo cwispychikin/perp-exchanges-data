@@ -119,12 +119,3 @@ def price_volume_chart(df: pd.DataFrame):
     plt.title("BTC Price & Notional Volume vs. Time")
     plt.savefig("btc_price_vlm_vs_time.png", dpi=300, bbox_inches="tight")
 
-
-print(volume_multiplier(snapshot_df))
-
-
-
-
-
-
-
