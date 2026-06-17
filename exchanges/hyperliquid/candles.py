@@ -62,31 +62,69 @@ typical_px = snapshot_df["typical_px"]
 snapshot_df["ntl_vlm"] = snapshot_df["typical_px"] * volume
 notional_volume = snapshot_df["ntl_vlm"]
 
+# compute volume multiplier
+def volume_multiplier(df: pd.DataFrame):
+
+    # filter df between jan. 15th and jan. 29th
+    snapshot_jan15_jan29 = df[
+        (start_time >= "2026-01-15") &
+        (start_time <= "2026-01-29")
+    ]
+
+    for _, rows in snapshot_jan15_jan29.iterrows():
+        avg_vlm_jan15_jan29 = sum(snapshot_jan15_jan29["ntl_vlm"]) / len(snapshot_jan15_jan29)
+
+    # filter df between jan. 29th and feb. 07th
+    snapshot_jan29_feb07 = snapshot_df[
+        (start_time >= "2026-01-29") &
+        (start_time <= "2026-02-07")
+    ]
+
+    for _, rows in snapshot_jan29_feb07.iterrows():
+        avg_vlm_jan29_feb07 = sum(snapshot_jan29_feb07["ntl_vlm"]) / len(snapshot_jan29_feb07)
+
+    # compute volume multiplier
+    volume_multiplier = avg_vlm_jan29_feb07 / avg_vlm_jan15_jan29
+    return volume_multiplier
+
+
 # plot price and notional volume against time
-fig, ax1 = plt.subplots(figsize = (14, 7))
-ax2 = ax1.twinx()
+def price_volume_chart(df: pd.DataFrame):
+    fig, ax1 = plt.subplots(figsize = (14, 7))
+    ax2 = ax1.twinx()
 
-ax1.plot(start_time, typical_px, color="#F7931A", label = "Typical Price")
-ax2.plot(start_time, notional_volume, color="#0F3933", label = "Notional Volume")
-ax1.set_xlabel("Time")
-ax1.set_ylabel("Price (USD)")
-ax2.set_ylabel("Notional Volume (USD)")
+    ax1.plot(start_time, typical_px, color="#F7931A", label = "Typical Price")
+    ax2.plot(start_time, notional_volume, color="#0F3933", label = "Notional Volume")
+    ax1.set_xlabel("Time")
+    ax1.set_ylabel("Price (USD)")
+    ax2.set_ylabel("Notional Volume (USD)")
 
-# fix x-axis formatting
-ax1.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
-fig.autofmt_xdate()
+    # fix x-axis formatting
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
+    fig.autofmt_xdate()
 
-# fix right y-axis formatting
-ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{x/1e9:.1f}B")) 
+    # fix right y-axis formatting
+    ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{x/1e9:.1f}B")) 
 
-# create legend
-handles1, labels1 = ax1.get_legend_handles_labels()
-handles2, labels2 = ax2.get_legend_handles_labels()
+    # create legend
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
 
-ax1.legend(
+    ax1.legend(
     handles1 + handles2,
     labels1 + labels2
-)
+    )
 
-plt.title("BTC Price & Notional Volume vs. Time")
-plt.savefig("btc_price_vlm_vs_time.png", dpi=300, bbox_inches="tight")
+    # save the chart
+    plt.title("BTC Price & Notional Volume vs. Time")
+    plt.savefig("btc_price_vlm_vs_time.png", dpi=300, bbox_inches="tight")
+
+
+print(volume_multiplier(snapshot_df))
+
+
+
+
+
+
+
