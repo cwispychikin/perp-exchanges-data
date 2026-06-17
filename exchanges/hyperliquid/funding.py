@@ -59,22 +59,42 @@ funding = funding_df["fundingRate"]
 premium = funding_df["premium"]
 time = funding_df["time"]
 
-# plot premium against time
-def premium_chart(df: pd.DataFrame):
+# plot basis against time
+def basis_chart(df: pd.DataFrame):
     
     fig, ax = plt.subplots(figsize = (14, 7))
-    ax.plot(time, premium, color = "#0F3933", label = "Premium")
-    ax.plot(time, funding, color = "#F7931A", label = "Funding Rate")
+    ax.plot(time, premium, color = "#0F3933")
     ax.set_xlabel("Time")
-    ax.set_ylabel("Premium")
+    ax.set_ylabel("Basis")
 
-    # fix x-axis formatting
+    # x-axis formatting
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
     fig.autofmt_xdate()
 
     # create legend and save the chart
-    ax.legend()
-    plt.title("BTC Premium vs. Time")
-    plt.savefig("btc_premium_funding_vs_time.png", dpi=300, bbox_inches="tight")
+    plt.title("BTC Basis vs. Time")
+    plt.savefig("btc_basis_vs_time.png", dpi = 300, bbox_inches = "tight")
 
-premium_chart(funding_df)
+# plot funding against time
+def funding_chart(df: pd.DataFrame):
+
+    fig, ax = plt.subplots(figsize = (14, 7))
+    ax.plot(time, funding, color = "#0F3933")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Funding Rate")
+
+    # x-axis formatting
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
+    fig.autofmt_xdate()
+
+    # y-axis formatting
+    ax.yaxis.set_major_formatter(
+        FuncFormatter(lambda y, _: f"{y*100:.3f}%")
+    )
+
+    # save the chart
+    plt.title("BTC Funding vs. Time")
+    plt.savefig("btc_funding_vs_time.png", dpi = 300, bbox_inches = "tight")
+
+basis_chart(funding_df)
+funding_chart(funding_df)

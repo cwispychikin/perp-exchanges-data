@@ -99,11 +99,11 @@ def price_volume_chart(df: pd.DataFrame):
     ax1.set_ylabel("Price (USD)")
     ax2.set_ylabel("Notional Volume (USD)")
 
-    # fix x-axis formatting
+    # x-axis formatting
     ax1.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
     fig.autofmt_xdate()
 
-    # fix right y-axis formatting
+    # right y-axis formatting
     ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{x/1e9:.1f}B")) 
 
     # create legend
