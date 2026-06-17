@@ -7,7 +7,7 @@ from matplotlib.ticker import FuncFormatter
 from datetime import datetime, timezone
 
 # get funding rates
-def get_funding_rates(coin):
+def get_funding_rate(coin):
 
     # specify time period
     start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
@@ -16,22 +16,35 @@ def get_funding_rates(coin):
     end_time_stamp = int(end_time.timestamp() * 1000)
 
     # API call
+
     url = "https://api.hyperliquid.xyz/info"
-    payload = {
-        "type": "fundingHistory",
-        "coin": coin,
-        "startTime": start_time_stamp,
-        "endTime": end_time_stamp
-    }
 
-    response = requests.post(url, json = payload)
-    funding_rates = response.json()
+    all_funding_rate = []
 
-    return funding_rates
+    while start_time_stamp < end_time_stamp:
+        
+        payload = {
+            "type": "fundingHistory",
+            "coin": coin,
+            "startTime": start_time_stamp,
+            "endTime": end_time_stamp
+        }
+
+        response = requests.post(url, json = payload)
+        funding_rate = response.json()
+
+        if len(funding_rate) == 0:
+            break
+
+        all_funding_rate.extend(funding_rate)
+
+        last_time = funding_rate[-1]["time"]
+        start_time_stamp = last_time + 1
+
+    return all_funding_rate
 
 coin = "BTC"
-historical_funding_rates = get_funding_rates(coin)
-funding_df = pd.DataFrame(historical_funding_rates)
+funding_df = pd.DataFrame(get_funding_rate(coin))
 
 # normalize data in dataframe
 for col in ["time"]:
@@ -42,7 +55,7 @@ for col in ["fundingRate", "premium"]:
     funding_df[col] = pd.to_numeric(funding_df[col]) # convert strings to numeric format
 
 # assign columns to variables
-funding_rate = funding_df["fundingRate"] 
+funding = funding_df["fundingRate"] 
 premium = funding_df["premium"]
 time = funding_df["time"]
 
@@ -51,7 +64,7 @@ def premium_chart(df: pd.DataFrame):
     
     fig, ax = plt.subplots(figsize = (14, 7))
     ax.plot(time, premium, color = "#0F3933", label = "Premium")
-    ax.plot(time, funding_rate, color = "#F7931A", label = "Funding Rate")
+    ax.plot(time, funding, color = "#F7931A", label = "Funding Rate")
     ax.set_xlabel("Time")
     ax.set_ylabel("Premium")
 
@@ -63,3 +76,5 @@ def premium_chart(df: pd.DataFrame):
     ax.legend()
     plt.title("BTC Premium vs. Time")
     plt.savefig("btc_premium_funding_vs_time.png", dpi=300, bbox_inches="tight")
+
+premium_chart(funding_df)
