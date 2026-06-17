@@ -47,16 +47,19 @@ premium = funding_df["premium"]
 time = funding_df["time"]
 
 # plot premium against time
-fig, ax = plt.subplots(figsize = (14, 7))
-ax.plot(time, premium, color = "#0F3933", label = "Premium")
-ax.plot(time, funding_rate, color = "#F7931A", label = "Funding Rate")
-ax.set_xlabel("Time")
-ax.set_ylabel("Premium")
+def premium_chart(df: pd.DataFrame):
+    
+    fig, ax = plt.subplots(figsize = (14, 7))
+    ax.plot(time, premium, color = "#0F3933", label = "Premium")
+    ax.plot(time, funding_rate, color = "#F7931A", label = "Funding Rate")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Premium")
 
-# fix x-axis formatting
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
-fig.autofmt_xdate()
+    # fix x-axis formatting
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
+    fig.autofmt_xdate()
 
-ax.legend()
-plt.title("BTC Premium vs. Time")
-plt.savefig("btc_premium_funding_vs_time.png", dpi=300, bbox_inches="tight")
+    # create legend and save the chart
+    ax.legend()
+    plt.title("BTC Premium vs. Time")
+    plt.savefig("btc_premium_funding_vs_time.png", dpi=300, bbox_inches="tight")
