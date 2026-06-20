@@ -9,14 +9,14 @@ from datetime import datetime, timezone
 # get funding rates and basis
 def get_hype_funding(coin, start_time, end_time):
 
-    # convert time bounds to utx format
+    # convert time bounds to unix
     start_time_stamp = int(start_time.timestamp() * 1000)
     end_time_stamp = int(end_time.timestamp() * 1000)
 
     # API call
     url = "https://api.hyperliquid.xyz/info"
 
-    all_funding_rate = []
+    all_hype_funding = []
 
     while start_time_stamp < end_time_stamp:
         
@@ -28,42 +28,37 @@ def get_hype_funding(coin, start_time, end_time):
         }
 
         response = requests.post(url, json = payload)
-        funding_rate = response.json()
+        hype_funding = response.json()
 
         # access all data from pagination
-        if len(funding_rate) == 0:
+        if len(hype_funding) == 0:
             break
 
-        all_funding_rate.extend(funding_rate)
+        all_hype_funding.extend(hype_funding)
 
-        last_time = funding_rate[-1]["time"]
+        last_time = hype_funding[-1]["time"]
         start_time_stamp = last_time + 1
 
-    return all_funding_rate
+    return all_hype_funding
 
 coin = "BTC"
 start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
 end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
-funding_df = pd.DataFrame(get_hype_funding(coin, start_time, end_time))
+hype_funding_df = pd.DataFrame(get_hype_funding(coin, start_time, end_time))
 
 # normalize data in dataframe
 for col in ["time"]:
-    funding_df[col] = pd.to_datetime(funding_df[col], unit="ms", utc=True) # convert unix to date-time
-    funding_df[col] = funding_df[col].dt.tz_localize(None) # remove UTC time zone
+    hype_funding_df[col] = pd.to_datetime(hype_funding_df[col], unit="ms", utc=True) # convert unix to date-time
+    hype_funding_df[col] = hype_funding_df[col].dt.tz_localize(None) # remove UTC time zone
     
 for col in ["fundingRate", "premium"]:
-    funding_df[col] = pd.to_numeric(funding_df[col]) # convert strings to numeric format
-
-# assign columns to variables
-funding = funding_df["fundingRate"] 
-premium = funding_df["premium"]
-time = funding_df["time"]
+    hype_funding_df[col] = pd.to_numeric(hype_funding_df[col]) # convert strings to numeric format
 
 # plot basis against time
 def plot_hype_basis(df: pd.DataFrame):
     
     fig, ax = plt.subplots(figsize = (14, 7))
-    ax.plot(time, premium, color = "#0F3933")
+    ax.plot(hype_funding_df["time"], hype_funding_df["premium"], color = "#0F3933")
     ax.set_xlabel("Time")
     ax.set_ylabel("Basis")
 
@@ -79,7 +74,7 @@ def plot_hype_basis(df: pd.DataFrame):
 def plot_hype_funding(df: pd.DataFrame):
 
     fig, ax = plt.subplots(figsize = (14, 7))
-    ax.plot(time, funding, color = "#0F3933")
+    ax.plot(hype_funding_df["time"], hype_funding_df["fundingRate"], color = "#0F3933")
     ax.set_xlabel("Time")
     ax.set_ylabel("Funding Rate")
 
@@ -96,5 +91,5 @@ def plot_hype_funding(df: pd.DataFrame):
     plt.title("BTC Funding vs. Time")
     plt.savefig("btc_funding_vs_time.png", dpi = 300, bbox_inches = "tight")
 
-plot_hype_funding(funding_df)
-plot_hype_basis(funding_df)
+plot_hype_funding(hype_funding_df)
+plot_hype_basis(hype_funding_df)
