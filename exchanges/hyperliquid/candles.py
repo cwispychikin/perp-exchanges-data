@@ -7,11 +7,9 @@ from matplotlib.ticker import FuncFormatter
 from datetime import datetime, timezone
 
 # get historical price and volume
-def get_candle_snapshot(coin, interval):
+def get_hype_candle(coin, start_time, end_time, interval):
 
-    # specify time period
-    start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
-    end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
+    # convert time bounds to utx format
     start_time_stamp = int(start_time.timestamp() * 1000)
     end_time_stamp = int(end_time.timestamp() * 1000)
 
@@ -35,7 +33,9 @@ def get_candle_snapshot(coin, interval):
 # price data for BTC
 coin = "BTC"
 interval = "1h"
-market_snapshot = get_candle_snapshot(coin, interval) 
+start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
+end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
+market_snapshot = get_hype_candle(coin, start_time, end_time, interval) 
 
 snapshot_df = pd.DataFrame(market_snapshot) # convert to dataframe
 
@@ -63,7 +63,7 @@ snapshot_df["ntl_vlm"] = snapshot_df["typical_px"] * volume
 notional_volume = snapshot_df["ntl_vlm"]
 
 # compute volume multiplier
-def volume_multiplier(df: pd.DataFrame):
+def hype_volume_multiplier(df: pd.DataFrame):
 
     # filter df between jan. 15th and jan. 29th
     snapshot_jan15_jan29 = df[
@@ -89,7 +89,7 @@ def volume_multiplier(df: pd.DataFrame):
 
 
 # plot price and notional volume against time
-def price_volume_chart(df: pd.DataFrame):
+def plot_hype_price_volume(df: pd.DataFrame):
     fig, ax1 = plt.subplots(figsize = (14, 7))
     ax2 = ax1.twinx()
 

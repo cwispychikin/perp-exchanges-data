@@ -6,17 +6,14 @@ import matplotlib.pyplot as plt, matplotlib.dates as mdates
 from matplotlib.ticker import FuncFormatter
 from datetime import datetime, timezone
 
-# get funding rates
-def get_funding_rate(coin):
+# get funding rates and basis
+def get_hype_funding(coin, start_time, end_time):
 
-    # specify time period
-    start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
-    end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
+    # convert time bounds to utx format
     start_time_stamp = int(start_time.timestamp() * 1000)
     end_time_stamp = int(end_time.timestamp() * 1000)
 
     # API call
-
     url = "https://api.hyperliquid.xyz/info"
 
     all_funding_rate = []
@@ -33,6 +30,7 @@ def get_funding_rate(coin):
         response = requests.post(url, json = payload)
         funding_rate = response.json()
 
+        # access all data from pagination
         if len(funding_rate) == 0:
             break
 
@@ -44,7 +42,9 @@ def get_funding_rate(coin):
     return all_funding_rate
 
 coin = "BTC"
-funding_df = pd.DataFrame(get_funding_rate(coin))
+start_time = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc) # start date: jan 15th
+end_time = datetime(2026, 2, 10, 0, 0, 0, tzinfo=timezone.utc) # end date: feb 10th
+funding_df = pd.DataFrame(get_hype_funding(coin, start_time, end_time))
 
 # normalize data in dataframe
 for col in ["time"]:
@@ -60,7 +60,7 @@ premium = funding_df["premium"]
 time = funding_df["time"]
 
 # plot basis against time
-def basis_chart(df: pd.DataFrame):
+def plot_hype_basis(df: pd.DataFrame):
     
     fig, ax = plt.subplots(figsize = (14, 7))
     ax.plot(time, premium, color = "#0F3933")
@@ -76,7 +76,7 @@ def basis_chart(df: pd.DataFrame):
     plt.savefig("btc_basis_vs_time.png", dpi = 300, bbox_inches = "tight")
 
 # plot funding against time
-def funding_chart(df: pd.DataFrame):
+def plot_hype_funding(df: pd.DataFrame):
 
     fig, ax = plt.subplots(figsize = (14, 7))
     ax.plot(time, funding, color = "#0F3933")
@@ -96,5 +96,5 @@ def funding_chart(df: pd.DataFrame):
     plt.title("BTC Funding vs. Time")
     plt.savefig("btc_funding_vs_time.png", dpi = 300, bbox_inches = "tight")
 
-basis_chart(funding_df)
-funding_chart(funding_df)
+plot_hype_funding(funding_df)
+plot_hype_basis(funding_df)
