@@ -38,7 +38,7 @@ def get_binance_basis(token_name_binance, contract_type, interval, limit, start_
 
     return binance_basis
 
-# create & normalize binance funding & basis dataframes
+# create dataframes, format data
 def build_binance_funding_df(token_name_binance, start_time_stamp, end_time_stamp, limit):
 
     binance_funding_df = pd.DataFrame(get_binance_funding(token_name_binance, start_time_stamp, end_time_stamp, limit))

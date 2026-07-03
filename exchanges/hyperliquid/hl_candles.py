@@ -22,20 +22,32 @@ def get_hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval):
 
     return hl_candles
 
-# create & normalize hyperliquid candles dataframe
+# create dataframe, format data
 def build_hl_candles_df(token_name_hl, start_time_stamp, end_time_stamp, interval):
 
     hl_candles_df = pd.DataFrame(get_hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval) ) # convert to dataframe
 
-    for col in ["t", "T"]:
-        hl_candles_df[col] = pd.to_datetime(hl_candles_df[col], unit="ms", utc=True) # convert unix to date-time format
-        hl_candles_df[col] = hl_candles_df[col].dt.tz_localize(None) # remove UTC time zone
+    hl_candles_df = hl_candles_df.rename(columns = {
+        "T": "end_time",
+        "t": "start_time",
+        "s": "token",
+        "i": "interval",
+        "o": "open",
+        "h": "high",
+        "l": "low",
+        "c": "close",
+        "v": "volume",
+        "n": "trade_count"
+    })
 
-    for col in ["o", "c", "h", "l", "v"]:
+    for col in ["start_time", "end_time"]:
+        hl_candles_df[col] = pd.to_datetime(hl_candles_df[col], unit = "ms") # convert unix to date-time format
+
+    for col in ["open", "close", "high", "low", "volume"]:
         hl_candles_df[col] = pd.to_numeric(hl_candles_df[col]) # convert strings to numeric format
 
     # compute typical price and notional volume
-    hl_candles_df["typical_px"] = (hl_candles_df["h"] + hl_candles_df["l"] + hl_candles_df["c"]) / 3
-    hl_candles_df["ntl_vlm"] = hl_candles_df["typical_px"] * hl_candles_df["v"]
+    hl_candles_df["typical_price"] = (hl_candles_df["high"] + hl_candles_df["low"] + hl_candles_df["close"]) / 3
+    hl_candles_df["notional_volume"] = hl_candles_df["typical_price"] * hl_candles_df["volume"]
 
     return hl_candles_df

@@ -33,12 +33,12 @@ def get_hl_funding(token_name_hl, start_time_stamp, end_time_stamp):
 
     return all_hl_funding
 
-# create & normalize data in hyperliquid funding dataframe
+# create dataframe, format data
 def build_hl_funding_df(token_name_hl, start_time_stamp, end_time_stamp):
 
     hl_funding_df = pd.DataFrame(get_hl_funding(token_name_hl, start_time_stamp, end_time_stamp))
 
-    hl_funding_df["time"] = pd.to_datetime(hl_funding_df["time"], unit="ms") # convert unix to date-time
+    hl_funding_df["time"] = pd.to_datetime(hl_funding_df["time"], unit = "ms") # convert unix to date-time
 
     for col in ["fundingRate", "premium"]:
         hl_funding_df[col] = pd.to_numeric(hl_funding_df[col]) # convert strings to numeric format

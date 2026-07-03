@@ -20,30 +20,30 @@ def get_binance_candles(token_name_binance, interval, start_time_stamp, end_time
 
     return binance_candles
 
-# create & normalize binance candles dataframe
+# create dataframe, format data
 def build_binance_candles_df(token_name_binance, interval, start_time_stamp, end_time_stamp, limit):
 
     binance_candles_df = pd.DataFrame(get_binance_candles(token_name_binance, interval, start_time_stamp, end_time_stamp, limit)) # convert to dataframe
 
     binance_candles_df.columns = [
-        "Open Time",
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Volume",
-        "Close Time",
-        "Quote Asset Volume",
-        "No. of Trades",
-        "Taker Buy Base Asset Volume",
-        "Taker Buy Quote Asset Volume",
-        "Ignore"
+        "start_time",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "end_time",
+        "notional_volume",
+        "trade_count",
+        "taker_buy_base_volume",
+        "taker_buy_quote_volume",
+        "ignore"
     ]
 
-    for col in ["Open Time", "Close Time"]:
+    for col in ["start_time", "end_time"]:
         binance_candles_df[col] = pd.to_datetime(binance_candles_df[col], unit = "ms") # convert unix to date-time format
 
-    for col in ["Open", "High", "Low", "Close", "Volume", "Quote Asset Volume", "No. of Trades", "Taker Buy Base Asset Volume", "Taker Buy Quote Asset Volume", "Ignore"]:
+    for col in ["open", "high", "low", "close", "notional_volume", "volume", "trade_count", "taker_buy_base_volume", "taker_buy_quote_volume", "ignore"]:
         binance_candles_df[col] = pd.to_numeric(binance_candles_df[col]) # convert strings to numeric format
 
     return binance_candles_df
