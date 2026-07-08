@@ -46,8 +46,4 @@ def build_hl_candles_df(token_name_hl, start_time_stamp, end_time_stamp, interva
     for col in ["open", "close", "high", "low", "volume"]:
         hl_candles_df[col] = pd.to_numeric(hl_candles_df[col]) # convert strings to numeric format
 
-    # compute typical price and notional volume
-    hl_candles_df["typical_price"] = (hl_candles_df["high"] + hl_candles_df["low"] + hl_candles_df["close"]) / 3
-    hl_candles_df["notional_volume"] = hl_candles_df["typical_price"] * hl_candles_df["volume"]
-
     return hl_candles_df
