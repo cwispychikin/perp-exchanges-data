@@ -2,10 +2,8 @@
 import requests
 import pandas as pd
 
-# get historical price and volume
-def get_hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval):
+def hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval):
 
-    # API call
     url = "https://api.hyperliquid.xyz/info"
     payload = {
         "type": "candleSnapshot",
@@ -20,12 +18,7 @@ def get_hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval):
     response = requests.post(url, json = payload)
     hl_candles = response.json()
 
-    return hl_candles
-
-# create dataframe, format data
-def build_hl_candles_df(token_name_hl, start_time_stamp, end_time_stamp, interval):
-
-    hl_candles_df = pd.DataFrame(get_hl_candles(token_name_hl, start_time_stamp, end_time_stamp, interval) ) # convert to dataframe
+    hl_candles_df = pd.DataFrame(hl_candles) # convert to dataframe
 
     hl_candles_df = hl_candles_df.rename(columns = {
         "T": "end_time",

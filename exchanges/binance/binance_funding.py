@@ -2,10 +2,9 @@
 import requests
 import pandas as pd
 
-# get funding rates
-def get_binance_funding(token_name_binance, start_time_stamp, end_time_stamp, limit):
+# funding
+def binance_funding(token_name_binance, start_time_stamp, end_time_stamp, limit):
 
-    # API call
     url = "https://fapi.binance.com/fapi/v1/fundingRate"
     params = {
         "symbol": token_name_binance,
@@ -17,12 +16,17 @@ def get_binance_funding(token_name_binance, start_time_stamp, end_time_stamp, li
     response = requests.get(url, params = params)
     binance_funding = response.json()
 
-    return binance_funding
+    binance_funding_df = pd.DataFrame(binance_funding)
+    binance_funding_df["fundingTime"] = pd.to_datetime(binance_funding_df["fundingTime"], unit = "ms") # convert unix to date-time
 
-# get basis
-def get_binance_basis(token_name_binance, contract_type, interval, limit, start_time_stamp, end_time_stamp):
+    for col in ["fundingRate", "markPrice"]:
+        binance_funding_df[col] = pd.to_numeric(binance_funding_df[col]) # convert strings to numeric format
 
-    # API call
+    return binance_funding_df
+
+# basis
+def binance_basis(token_name_binance, contract_type, interval, limit, start_time_stamp, end_time_stamp):
+
     url = "https://fapi.binance.com/futures/data/basis"
     params = {
         "pair": token_name_binance,
@@ -36,22 +40,7 @@ def get_binance_basis(token_name_binance, contract_type, interval, limit, start_
     response = requests.get(url, params = params)
     binance_basis = response.json()
 
-    return binance_basis
-
-# create dataframes, format data
-def build_binance_funding_df(token_name_binance, start_time_stamp, end_time_stamp, limit):
-
-    binance_funding_df = pd.DataFrame(get_binance_funding(token_name_binance, start_time_stamp, end_time_stamp, limit))
-    binance_funding_df["fundingTime"] = pd.to_datetime(binance_funding_df["fundingTime"], unit = "ms") # convert unix to date-time
-
-    for col in ["fundingRate", "markPrice"]:
-        binance_funding_df[col] = pd.to_numeric(binance_funding_df[col]) # convert strings to numeric format
-
-    return binance_funding_df
-
-def build_binance_basis_df(token_name_binance, contract_type, interval, limit, start_time_stamp, end_time_stamp):
-
-    binance_basis_df = pd.DataFrame(get_binance_basis(token_name_binance, contract_type, interval, limit, start_time_stamp, end_time_stamp))
+    binance_basis_df = pd.DataFrame(binance_basis)
     binance_basis_df["timestamp"] = pd.to_datetime(binance_basis_df["timestamp"], unit = "ms")
 
     for col in ["indexPrice", "basisRate", "futuresPrice", "basis"]:

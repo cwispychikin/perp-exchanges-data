@@ -2,8 +2,7 @@
 import requests
 import pandas as pd
 
-# get candles
-def get_binance_candles(token_name_binance, interval, start_time_stamp, end_time_stamp, limit):
+def binance_candles(token_name_binance, interval, start_time_stamp, end_time_stamp, limit):
 
     # API call
     url = "https://fapi.binance.com/fapi/v1/klines"
@@ -18,12 +17,7 @@ def get_binance_candles(token_name_binance, interval, start_time_stamp, end_time
     response  = requests.get(url, params = params)
     binance_candles = response.json()
 
-    return binance_candles
-
-# create dataframe, format data
-def build_binance_candles_df(token_name_binance, interval, start_time_stamp, end_time_stamp, limit):
-
-    binance_candles_df = pd.DataFrame(get_binance_candles(token_name_binance, interval, start_time_stamp, end_time_stamp, limit)) # convert to dataframe
+    binance_candles_df = pd.DataFrame(binance_candles)
 
     binance_candles_df.columns = [
         "start_time",

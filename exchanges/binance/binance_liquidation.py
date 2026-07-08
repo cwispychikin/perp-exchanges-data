@@ -9,10 +9,8 @@ coinglass_api_key = os.getenv("COINGLASS_API_KEY")
 if coinglass_api_key is None:
     raise ValueError("COINGLASS_API_KEY not loaded")
 
-# get liquidation
-def get_binance_liquidation(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
+def binance_liquidation(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
 
-    # API call
     url = "https://open-api-v4.coinglass.com/api/futures/liquidation/history"
     headers = {
         "accept": "application/json",
@@ -29,12 +27,6 @@ def get_binance_liquidation(cg_token_name_binance, interval, start_time_stamp, e
     response = requests.get(url, headers = headers, params = params)
     binance_liquidation = response.json()
 
-    return binance_liquidation
-
-# create dataframe, format data
-def build_binance_liquidation_df(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
-
-    binance_liquidation = get_binance_liquidation(cg_token_name_binance, interval, start_time_stamp, end_time_stamp)
     binance_liquidation_df = pd.DataFrame(binance_liquidation["data"])
 
     binance_liquidation_df["time"] = pd.to_datetime(binance_liquidation_df["time"], unit = "ms") # convert unix to date-time

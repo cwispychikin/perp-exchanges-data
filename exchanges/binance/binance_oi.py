@@ -1,9 +1,3 @@
-
-import requests
-import pandas as pd
-from datetime import datetime, timezone
-
-# get open interest
 import requests
 import pandas as pd
 import os
@@ -15,10 +9,8 @@ coinglass_api_key = os.getenv("COINGLASS_API_KEY")
 if coinglass_api_key is None:
     raise ValueError("COINGLASS_API_KEY not loaded")
 
-# get open interest
-def get_binance_oi(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
+def binance_oi(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
 
-    # API call
     url = "https://open-api-v4.coinglass.com/api/futures/open-interest/history"
     headers = {
         "accept": "application/json",
@@ -35,12 +27,6 @@ def get_binance_oi(cg_token_name_binance, interval, start_time_stamp, end_time_s
     response = requests.get(url, headers = headers, params = params)
     binance_oi = response.json()
 
-    return binance_oi
-
-# create dataframe, format data
-def build_binance_oi_df(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
-
-    binance_oi = get_binance_oi(cg_token_name_binance, interval, start_time_stamp, end_time_stamp)
     binance_oi_df = pd.DataFrame(binance_oi["data"])
 
     binance_oi_df["time"] = pd.to_datetime(binance_oi_df["time"], unit = "ms") # convert unix to date-time
