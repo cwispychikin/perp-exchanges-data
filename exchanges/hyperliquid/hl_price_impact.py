@@ -11,7 +11,7 @@ if dune_api_key is None:
     raise ValueError("DUNE_API_KEY not loaded")
 
 # fetch price impact data from Dune Analytics
-def hl_price_impact(query_id):
+def hl_price_impact(query_id: 7920398):
 
     headers = {
         "X-Dune-API-Key": dune_api_key
@@ -50,7 +50,7 @@ def hl_price_impact(query_id):
     rows = hl_price_impact.json()["result"]["rows"]
 
     hl_price_impact_df = pd.DataFrame(rows)
-    hl_price_impact_df["time"] = pd.to_datetime(hl_price_impact_df["time"])
+    hl_price_impact_df["time"] = pd.to_datetime(hl_price_impact_df["time"], unit = "ms")
 
     for col in ["mid_px", "impact_bid_px", "impact_ask_px"]:
         hl_price_impact_df[col] = pd.to_numeric(hl_price_impact_df[col])
