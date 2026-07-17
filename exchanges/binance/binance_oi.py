@@ -35,20 +35,3 @@ def binance_oi(cg_token_name_binance, interval, start_time_stamp, end_time_stamp
         binance_oi_df[col] = pd.to_numeric(binance_oi_df[col]) # convert strings to numeric format
 
     return binance_oi_df
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -9,7 +9,7 @@ coinglass_api_key = os.getenv("COINGLASS_API_KEY")
 if coinglass_api_key is None:
     raise ValueError("COINGLASS_API_KEY not loaded")
 
-# global account long/short ratio
+# global account long-short ratio
 def binance_global_account_long_short(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
 
     url = "https://open-api-v4.coinglass.com/api/futures/global-long-short-account-ratio/history"
@@ -37,7 +37,7 @@ def binance_global_account_long_short(cg_token_name_binance, interval, start_tim
 
     return binance_global_account_long_short_df
 
-# top account long/short ratio
+# top account long-short ratio
 def binance_top_account_long_short(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
 
     url = "https://open-api-v4.coinglass.com/api/futures/top-long-short-account-ratio/history"
@@ -64,3 +64,31 @@ def binance_top_account_long_short(cg_token_name_binance, interval, start_time_s
         binance_top_account_long_short_df[col] = pd.to_numeric(binance_top_account_long_short_df[col]) # convert strings to numeric format
 
     return binance_top_account_long_short_df
+
+# top position long-short ratio
+def binance_top_position_long_short(cg_token_name_binance, interval, start_time_stamp, end_time_stamp):
+
+    url = "https://open-api-v4.coinglass.com/api/futures/top-long-short-position-ratio/history"
+    headers = {
+        "accept": "application/json",
+        "CG-API-KEY": coinglass_api_key
+    }
+    params = {
+        "exchange": "Binance",
+        "symbol": cg_token_name_binance,
+        "interval": interval,
+        "start_time": start_time_stamp,
+        "end_time": end_time_stamp
+    }
+
+    response = requests.get(url, headers = headers, params = params)
+    binance_top_position_long_short = response.json()
+
+    binance_top_position_long_short_df = pd.DataFrame(binance_top_position_long_short["data"])
+
+    binance_top_position_long_short_df["time"] = pd.to_datetime(binance_top_position_long_short_df["time"], unit = "ms") # convert unix to date-time
+
+    for col in ["top_position_long_percent", "top_position_short_percent", "top_position_long_short_ratio"]:
+        binance_top_position_long_short_df[col] = pd.to_numeric(binance_top_position_long_short_df[col]) # convert strings to numeric format
+
+    return binance_top_position_long_short_df

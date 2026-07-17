@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 
@@ -41,4 +40,3 @@ def hl_funding(token_name_hl, start_time_stamp, end_time_stamp):
         hl_funding_df[col] = pd.to_numeric(hl_funding_df[col]) # convert strings to numeric format
 
     return hl_funding_df
-
